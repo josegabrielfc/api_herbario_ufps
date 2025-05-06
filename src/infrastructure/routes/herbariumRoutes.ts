@@ -23,4 +23,39 @@ router.post('/home/createHerbarium',
     }
 );
 
+router.put('/home/updateHerbarium/:id', 
+    authMiddleware, 
+    async (req, res) => {
+        try {
+            await herbariumTypeController.updateHerbariumType(req, res);
+        } catch (error) {
+            res.status(500).send({ error: 'Internal Server Error' });
+        }
+    }
+);
+
+// Cambio de estado de un herbario (activar/desactivar)
+router.patch('/home/toggleHerbariumStatus/:id', 
+    authMiddleware, 
+    async (req, res) => {
+        try {
+            await herbariumTypeController.toggleHerbariumTypeStatus(req, res);
+        } catch (error) {
+            res.status(500).send({ error: 'Internal Server Error' });
+        }
+    }
+);
+
+// Soft Delete endpoint
+router.patch('/home/softDelete/:id',
+    authMiddleware, 
+    async (req, res) => {
+        try {
+            await herbariumTypeController.softDeleteHerbariumType(req, res);
+        } catch (error) {
+            res.status(500).send({ error: 'Internal Server Error' });
+        }
+    }
+);
+
 export default router;
