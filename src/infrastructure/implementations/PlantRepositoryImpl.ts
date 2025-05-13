@@ -5,9 +5,9 @@ import { pool } from '../database/postgresClient';
 export class PlantRepositoryImpl implements PlantRepository {
   async getAll(): Promise<Plant[]> {
     const result = await pool.query(`
-      SELECT *
-      FROM plant
-      WHERE is_deleted = FALSE
+      SELECT plant.*, family.name as family_name 
+      FROM plant inner join family on family.id = plant.family_id
+      WHERE plant.is_deleted = FALSE
     `);
     return result.rows;
   }

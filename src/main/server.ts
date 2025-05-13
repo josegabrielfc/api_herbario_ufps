@@ -5,10 +5,13 @@ import herbariumRoutes from '../infrastructure/routes/herbariumRoutes';
 import { testDbConnection } from '../infrastructure/database/postgresClient';
 import familyRoutes from '../infrastructure/routes/familyRoutes';
 import authRoutes from '../infrastructure/routes/authRoutes';
+import plantImgRoutes from '../infrastructure/routes/plantImgRoutes';
 import cors from 'cors';
+import path from 'path';
 
 const app = express();
 
+app.use('/uploads', express.static(path.join(__dirname, '../../uploads')));
 // Configurar CORS
 app.use(cors({
   origin: process.env.CORS_ORIGIN || '*', // Configurar los dominios permitidos
@@ -24,6 +27,7 @@ app.use(plantRoutes);
 app.use('/', herbariumRoutes);
 app.use('/home', familyRoutes);
 app.use('/auth', authRoutes);
+app.use('/img', plantImgRoutes);
 
 
 // Test DB

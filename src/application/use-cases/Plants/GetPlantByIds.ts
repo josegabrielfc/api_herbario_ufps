@@ -1,5 +1,5 @@
-import { Plant } from '../../domain/entities/Plant';
-import { PlantRepository } from '../../domain/repositories/PlantRepository';
+import { Plant } from '../../../domain/entities/Plant';
+import { PlantRepository } from '../../../domain/repositories/PlantRepository';
 
 export class GetPlantByIds {
   constructor(private plantRepository: PlantRepository) {}

@@ -1,5 +1,5 @@
-import { HerbariumType } from '../../domain/entities/HerbariumType';
-import { HerbariumTypeRepository } from '../../domain/repositories/HerbariumTypeRepository';
+import { HerbariumType } from '../../../domain/entities/HerbariumType';
+import { HerbariumTypeRepository } from '../../../domain/repositories/HerbariumTypeRepository';
 
 export class GetAllHerbariumTypes {
   constructor(private herbariumTypeRepository: HerbariumTypeRepository) {}

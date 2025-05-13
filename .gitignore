@@ -15,6 +15,8 @@ dist-ssr
 #Env
 .env
 
+uploads/plants/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

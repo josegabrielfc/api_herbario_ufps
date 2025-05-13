@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { GetAllPlants } from '../../application/use-cases/GetAllPlants';
-import { GetPlantByIds } from '../../application/use-cases/GetPlantByIds';
+import { GetAllPlants } from '../../application/use-cases/Plants/GetAllPlants';
+import { GetPlantByIds } from '../../application/use-cases/Plants/GetPlantByIds';
 import { PlantRepositoryImpl } from '../implementations/PlantRepositoryImpl';
 import { ApiResponse } from '../helpers/ApiResponse';
 

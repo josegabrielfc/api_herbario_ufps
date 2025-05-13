@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import { LoginUser } from '../../application/use-cases/LoginUser';
-import { CreateUser } from '../../application/use-cases/CreateUser';
-import { UpdateUserPassword } from '../../application/use-cases/UpdateUserPassword';
+import { LoginUser } from '../../application/use-cases/Auth/LoginUser';
+import { CreateUser } from '../../application/use-cases/Auth/CreateUser';
+import { UpdateUserPassword } from '../../application/use-cases/Auth/UpdateUserPassword';
 import { UserRepositoryImpl } from '../implementations/UserRepositoryImpl';
 import { ApiResponse } from '../helpers/ApiResponse';
 
@@ -31,7 +31,7 @@ export class AuthController {
 
             if (!token) {
                 response.statusCode = 401;
-                response.message = 'Invalid credentials' + email + password + " " + token;
+                response.message = 'Invalid credentials';
                 return res.status(response.statusCode).json(response);
             }
 

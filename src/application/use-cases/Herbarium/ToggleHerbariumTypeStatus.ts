@@ -1,6 +1,6 @@
-import { HerbariumType } from '../../domain/entities/HerbariumType';
-import { HerbariumTypeRepository } from '../../domain/repositories/HerbariumTypeRepository';
-import { LogEventRepository } from '../../domain/repositories/LogEventRepository';
+import { HerbariumType } from '../../../domain/entities/HerbariumType';
+import { HerbariumTypeRepository } from '../../../domain/repositories/HerbariumTypeRepository';
+import { LogEventRepository } from '../../../domain/repositories/LogEventRepository';
 
 export class ToggleHerbariumTypeStatus {
     constructor(

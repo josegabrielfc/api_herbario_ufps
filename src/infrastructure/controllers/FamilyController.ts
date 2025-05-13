@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { GetFamiliesByHerbariumType } from '../../application/use-cases/GetFamiliesByHerbariumType';
+import { GetFamiliesByHerbariumType } from '../../application/use-cases/Family/GetFamiliesByHerbariumType';
 import { FamilyRepositoryImpl } from '../../infrastructure/implementations/FamilyRepositoryImpl';
 import { ApiResponse } from '../helpers/ApiResponse';
 

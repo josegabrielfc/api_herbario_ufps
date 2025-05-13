@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import { GetAllHerbariumTypes } from '../../application/use-cases/GetAllHerbariumTypes';
-import { CreateHerbariumType } from '../../application/use-cases/CreateHerbariumType';
-import { UpdateHerbariumType } from '../../application/use-cases/UpdateHerbariumType';
-import { ToggleHerbariumTypeStatus } from '../../application/use-cases/ToggleHerbariumTypeStatus';
-import { SoftDeleteHerbariumType } from '../../application/use-cases/SoftDeleteHerbariumType';
+import { GetAllHerbariumTypes } from '../../application/use-cases/Herbarium/GetAllHerbariumTypes';
+import { CreateHerbariumType } from '../../application/use-cases/Herbarium/CreateHerbariumType';
+import { UpdateHerbariumType } from '../../application/use-cases/Herbarium/UpdateHerbariumType';
+import { ToggleHerbariumTypeStatus } from '../../application/use-cases/Herbarium/ToggleHerbariumTypeStatus';
+import { SoftDeleteHerbariumType } from '../../application/use-cases/Herbarium/SoftDeleteHerbariumType';
 import { HerbariumTypeRepositoryImpl } from '../implementations/HerbariumTypeRepositoryImpl';
 import { LogEventRepositoryImpl } from '../implementations/LogEventRepositoryImpl';
 import { ApiResponse } from '../helpers/ApiResponse';
