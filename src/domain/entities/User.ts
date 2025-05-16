@@ -5,4 +5,5 @@ export interface User {
     password: string;
     role_id: number;
     created_at: Date;
+    token?: string;
 }

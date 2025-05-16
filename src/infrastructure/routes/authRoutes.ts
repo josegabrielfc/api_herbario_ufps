@@ -22,9 +22,27 @@ router.post("/register", authMiddleware, async (req, res) => {
     }
 });
 
-router.put("/update-password", authMiddleware, async (req, res) => {
+router.put("/update-password", async (req, res) => {
     try {
         await authController.updatePassword(req, res);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error interno del servidor" });
+    }
+});
+
+router.post("/forgot-password", async (req, res) => {
+    try {
+        await authController.sendForgotPasswordCode(req, res);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error interno del servidor" });
+    }
+});
+
+router.post("/validate-code", async (req, res) => {
+    try {
+        await authController.validateCode(req, res);
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Error interno del servidor" });

@@ -34,4 +34,27 @@ export class UserRepositoryImpl implements UserRepository {
         );
         return (result.rowCount ?? 0) > 0;
     }
+    async updateUserToken(userId: number, token: string): Promise<boolean> {
+        const result = await pool.query(
+            'UPDATE "User" SET token = $1 WHERE id = $2',
+            [token, userId]
+        );
+        return (result.rowCount ?? 0) > 0;
+    }
+
+    async updateForgotPasswordCode(email: string, code: string): Promise<boolean> {
+        const result = await pool.query(
+            'UPDATE "User" SET forgot_password_code = $1 WHERE email = $2',
+            [code, email]
+        );
+        return (result.rowCount ?? 0) > 0;
+    }
+
+    async validateForgotPasswordCode(email: string, code: string): Promise<boolean> {
+        const result = await pool.query(
+            'SELECT id FROM "User" WHERE email = $1 AND forgot_password_code = $2',
+            [email, code]
+        );
+        return (result.rowCount ?? 0) > 0;
+    }
 }

@@ -4,17 +4,34 @@ import { CreateUser } from '../../application/use-cases/Auth/CreateUser';
 import { UpdateUserPassword } from '../../application/use-cases/Auth/UpdateUserPassword';
 import { UserRepositoryImpl } from '../implementations/UserRepositoryImpl';
 import { ApiResponse } from '../helpers/ApiResponse';
+import { UserRepository } from '../../domain/repositories/UserRepository';
+import { SendForgotPasswordCode } from '../../application/use-cases/Auth/SendForgotPasswordCode';
+import { EmailService } from '../services/EmailService';
+import { ValidateForgotPasswordCode } from '../../application/use-cases/Auth/ValidateForgotPasswordCode';
+
+
+
 
 export class AuthController {
     private loginUserUseCase: LoginUser;
     private createUserUseCase: CreateUser;
     private updatePasswordUseCase: UpdateUserPassword;
+    private sendForgotPasswordCodeUseCase: SendForgotPasswordCode;
+    private validateForgotPasswordCodeUseCase: ValidateForgotPasswordCode;
+    private userRepository: UserRepository;
 
     constructor() {
-        const userRepo = new UserRepositoryImpl();
-        this.loginUserUseCase = new LoginUser(userRepo);
-        this.createUserUseCase = new CreateUser(userRepo);
-        this.updatePasswordUseCase = new UpdateUserPassword(userRepo);
+        this.userRepository = new UserRepositoryImpl();
+        this.loginUserUseCase = new LoginUser(this.userRepository);
+        this.createUserUseCase = new CreateUser(this.userRepository);
+        this.updatePasswordUseCase = new UpdateUserPassword(this.userRepository);
+        this.validateForgotPasswordCodeUseCase = new ValidateForgotPasswordCode(this.userRepository);
+        
+        const emailService = new EmailService();
+        this.sendForgotPasswordCodeUseCase = new SendForgotPasswordCode(
+            this.userRepository,
+            emailService
+        );
     }
 
     async login(req: Request, res: Response): Promise<Response> {
@@ -27,16 +44,19 @@ export class AuthController {
 
         try {
             const { email, password } = req.body;
-            const token = await this.loginUserUseCase.execute(email, password);
+            const result = await this.loginUserUseCase.execute(email, password);
 
-            if (!token) {
+            if (!result || !result.success) {
                 response.statusCode = 401;
-                response.message = 'Invalid credentials';
+                response.message = result?.message || 'Credenciales inválidas';
                 return res.status(response.statusCode).json(response);
             }
 
             response.message = 'Login successful';
-            response.data = { token };
+            response.data = {
+                token: result.data?.token,
+                user: result.data?.user
+            };
             return res.status(response.statusCode).json(response);
 
         } catch (error) {
@@ -44,6 +64,25 @@ export class AuthController {
             response.statusCode = 500;
             response.message = 'Error interno del servidor';
             return res.status(response.statusCode).json(response);
+        }
+    }
+
+    async logout(req: Request, res: Response) {
+        try {
+            const userId = req.user?.userId;
+            
+            // Eliminar el token de la base de datos
+            await this.userRepository.updateUserToken(userId!, '');
+            
+            res.json({ 
+                success: true, 
+                message: 'Sesión cerrada correctamente' 
+            });
+        } catch (error) {
+            res.status(500).json({ 
+                success: false, 
+                message: 'Error al cerrar sesión' 
+            });
         }
     }
 
@@ -122,6 +161,78 @@ export class AuthController {
             }
 
             response.message = 'Contraseña actualizada exitosamente';
+            return res.status(response.statusCode).json(response);
+
+        } catch (error) {
+            console.error(error);
+            response.statusCode = 500;
+            response.message = 'Error interno del servidor';
+            return res.status(response.statusCode).json(response);
+        }
+    }
+
+    async sendForgotPasswordCode(req: Request, res: Response): Promise<Response> {
+        const response: ApiResponse = {
+            statusCode: 200,
+            message: '',
+            timestamp: new Date().toISOString(),
+            data: null
+        };
+
+        try {
+            const { email } = req.body;
+
+            if (!email) {
+                response.statusCode = 400;
+                response.message = 'El correo electrónico es requerido';
+                return res.status(response.statusCode).json(response);
+            }
+
+            const success = await this.sendForgotPasswordCodeUseCase.execute(email);
+
+            if (!success) {
+                response.statusCode = 404;
+                response.message = 'Correo electrónico no encontrado';
+                return res.status(response.statusCode).json(response);
+            }
+
+            response.message = 'Código enviado exitosamente';
+            return res.status(response.statusCode).json(response);
+
+        } catch (error) {
+            console.error(error);
+            response.statusCode = 500;
+            response.message = 'Error interno del servidor';
+            return res.status(response.statusCode).json(response);
+        }
+    }
+
+    async validateCode(req: Request, res: Response): Promise<Response> {
+        const response: ApiResponse = {
+            statusCode: 200,
+            message: '',
+            timestamp: new Date().toISOString(),
+            data: null
+        };
+
+        try {
+            const { email, code } = req.body;
+
+            if (!email || !code) {
+                response.statusCode = 400;
+                response.message = 'Email y código son requeridos';
+                return res.status(response.statusCode).json(response);
+            }
+
+            const isValid = await this.validateForgotPasswordCodeUseCase.execute(email, code);
+
+            if (!isValid) {
+                response.statusCode = 400;
+                response.message = 'Código inválido';
+                return res.status(response.statusCode).json(response);
+            }
+
+            response.message = 'Código validado exitosamente';
             return res.status(response.statusCode).json(response);
 
         } catch (error) {

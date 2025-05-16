@@ -37,13 +37,15 @@ declare global {
 
 export const authMiddleware = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    // Rate limiting
-    const ip = req.ip || '0.0.0.0'; // Provide a default IP if undefined
+    // Limitación de tasa
+    const ip = req.ip || '0.0.0.0'; // IP por defecto si no está definida
     const isRateLimited = await rateLimiter.consume(ip);
     
     if (!isRateLimited) {
       res.status(429).json({
-        message: 'Too many requests. Please try again later.'
+        statusCode: 429,
+        status: 'TOO_MANY_REQUESTS',
+        message: 'Demasiadas solicitudes. Por favor, intenta más tarde.',
       });
       return;
     }
@@ -51,20 +53,22 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
     const authHeader = req.headers.authorization;
     
     if (!authHeader) {
-      logger.error('Authorization header missing', { ip });
+      logger.error('Falta el encabezado de autorización', { ip });
       res.status(401).json({ 
-        message: 'Authorization header is missing',
-        code: 'AUTH_HEADER_MISSING'
+        statusCode: 401,
+        status: 'AUTH_HEADER_MISSING',
+        message: 'Falta el encabezado de autorización',
       });
       return;
     }
 
     const parts = authHeader.split(' ');
     if (parts.length !== 2 || parts[0] !== 'Bearer') {
-      logger.error('Invalid authorization format', { ip });
+      logger.error('Formato de autorización inválido', { ip });
       res.status(401).json({ 
-        message: 'Authorization format is invalid. Use: Bearer <token>',
-        code: 'INVALID_AUTH_FORMAT'
+        statusCode: 401,
+        status: 'INVALID_AUTH_FORMAT',
+        message: 'El formato de autorización es inválido. Usa: Bearer <token>'
       });
       return;
     }
@@ -72,10 +76,11 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
     const token = parts[1];
     
     if (!token) {
-      logger.error('No token provided', { ip });
-        res.status(401).json({ 
-        message: 'No token provided',
-        code: 'NO_TOKEN_PROVIDED'
+      logger.error('Token no proporcionado', { ip });
+      res.status(401).json({ 
+        statusCode: 401,
+        status: 'NO_TOKEN_PROVIDED',
+        message: 'Token no proporcionado'
       });
       return;
     }
@@ -86,40 +91,24 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
         process.env.JWT_SECRET || 'your-secret-key'
       ) as JwtPayload;
 
-      // Verificar si el token está en la lista negra
-      const isTokenBlacklisted = await checkTokenBlacklist(token);
-      if (isTokenBlacklisted) {
-        logger.error('Token is blacklisted', { ip });
-        res.status(401).json({
-          message: 'Token has been revoked',
-          code: 'TOKEN_REVOKED'
-        });
-        return;
-      }
-
       req.user = decoded;
       next();
     } catch (jwtError) {
-      logger.error('JWT verification failed', { ip, error: jwtError });
+      logger.error('Falló la verificación del JWT', { ip, error: jwtError });
       res.status(401).json({
-        message: 'Invalid token',
-        code: 'INVALID_TOKEN'
+        statusCode: 401,
+        status: 'INVALID_TOKEN',
+        message: 'Token inválido'
       });
       return;
     }
   } catch (error) {
-    logger.error('Authentication error', { error });
+    logger.error('Error de autenticación', { error });
     res.status(500).json({
-      message: 'Internal server error',
-      code: 'INTERNAL_ERROR'
+      statusCode: 500,
+      status: 'INTERNAL_ERROR',
+      message: 'Error interno del servidor'
     });
     return;
   }
 };
-
-// Función para verificar si un token está en la lista negra
-async function checkTokenBlacklist(token: string): Promise<boolean> {
-  // Implementar lógica para verificar la lista negra
-  // Puede ser una base de datos o una caché
-  return false;
-}
