@@ -7,4 +7,5 @@ export interface Plant {
     description: string | null;
     status: boolean;
     is_deleted: boolean;
+    refs: string | null;
 }

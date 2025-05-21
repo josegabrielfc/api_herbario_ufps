@@ -5,9 +5,11 @@ import { pool } from "../database/postgresClient";
 export class PlantRepositoryImpl implements PlantRepository {
   async getAll(): Promise<Plant[]> {
     const result = await pool.query(`
-      SELECT plant.*, family.name as family_name 
+      SELECT plant.*, family.name as family_name, herbarium_type.name as herbarium_name 
       FROM plant inner join family on family.id = plant.family_id
-      WHERE plant.is_deleted = FALSE
+      INNER JOIN herbarium_type ON herbarium_type.id = family.herbarium_type_id
+      WHERE plant.is_deleted = FALSE 
+      order by plant.common_name
     `);
     return result.rows;
   }
@@ -15,11 +17,12 @@ export class PlantRepositoryImpl implements PlantRepository {
   async getByIds(herbariumTypeId: number, familyId: number): Promise<Plant[]> {
     const result = await pool.query(
       `
-      SELECT plant.* FROM plant 
+      SELECT plant.*, family.name as family_name, herbarium_type.name as herbarium_name FROM plant 
       INNER JOIN family ON family.id = plant.family_id
+      INNER JOIN herbarium_type ON herbarium_type.id = family.herbarium_type_id
       WHERE family.herbarium_type_id = $1 
       AND family.id = $2 
-      AND plant.is_deleted = FALSE
+      AND plant.is_deleted = FALSE order by plant.common_name
     `,
       [herbariumTypeId, familyId]
     );
@@ -29,20 +32,21 @@ export class PlantRepositoryImpl implements PlantRepository {
   async create(plant: Omit<Plant, "id">): Promise<Plant> {
     const result = await pool.query(
       `INSERT INTO plant (
-            family_id, common_name, scientific_name, 
-            quantity, description, status, is_deleted
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7) 
-        RETURNING *`,
-      [
-        plant.family_id,
-        plant.common_name,
-        plant.scientific_name,
-        plant.quantity,
-        plant.description,
-        plant.status,
-        false,
-      ]
-    );
+                family_id, common_name, scientific_name, 
+                quantity, description, status, is_deleted, refs
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
+            RETURNING *`,
+            [
+                plant.family_id,
+                plant.common_name,
+                plant.scientific_name,
+                plant.quantity,
+                plant.description,
+                plant.status,
+                false,
+                plant.refs || null
+            ]
+        );
     return result.rows[0];
   }
 
@@ -69,6 +73,12 @@ export class PlantRepositoryImpl implements PlantRepository {
     if (plant.description !== undefined) {
       updateFields.push(`description = $${paramCount}`);
       values.push(plant.description);
+      paramCount++;
+    }
+
+    if (plant.refs !== undefined) {
+      updateFields.push(`refs = $${paramCount}`);
+      values.push(plant.refs);
       paramCount++;
     }
 

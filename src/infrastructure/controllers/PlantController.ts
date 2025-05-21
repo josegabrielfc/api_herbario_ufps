@@ -125,6 +125,7 @@ export class PlantController {
         description: req.body.description || null,
         status: true,
         is_deleted: false,
+        refs: req.body.refs || null
       };
 
       const newPlant = await this.createPlantUseCase.execute(
@@ -169,6 +170,7 @@ export class PlantController {
         scientific_name: req.body.scientific_name,
         quantity: req.body.quantity,
         description: req.body.description,
+        refs: req.body.refs
       };
 
       const updatedPlant = await this.updatePlantUseCase.execute(
