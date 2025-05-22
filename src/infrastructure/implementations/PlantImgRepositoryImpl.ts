@@ -107,4 +107,38 @@ export class PlantImgRepositoryImpl implements PlantImgRepository {
         const result = await pool.query(query, [id]);
         return result.rows[0] || null;
     }
+
+    async countImagesByPlantId(plantId: number): Promise<number> {
+        const query = `
+            SELECT COUNT(*) as count
+            FROM plant_img
+            WHERE plant_id = $1 AND is_deleted = false
+        `;
+        
+        const result = await pool.query(query, [plantId]);
+        return parseInt(result.rows[0].count);
+    }
+
+    async createMultiple(plantImgs: Array<Omit<PlantImg, 'id' | 'created_at'>>): Promise<PlantImg[]> {
+        // First, validate total images won't exceed 3
+        const currentCount = await this.countImagesByPlantId(plantImgs[0].plant_id);
+        const totalAfterInsert = currentCount + plantImgs.length;
+        
+        if (totalAfterInsert > 3) {
+            throw new Error(`Maximum 3 images allowed per plant. Current: ${currentCount}`);
+        }
+
+        const values = plantImgs.map(img => 
+            `(${img.plant_id}, '${img.image_url}', '${img.description || ''}', false)`
+        ).join(', ');
+
+        const query = `
+            INSERT INTO plant_img (plant_id, image_url, description, is_deleted)
+            VALUES ${values}
+            RETURNING *
+        `;
+        
+        const result = await pool.query(query);
+        return result.rows;
+    }
 }

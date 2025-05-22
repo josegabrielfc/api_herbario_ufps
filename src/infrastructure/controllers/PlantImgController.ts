@@ -13,7 +13,7 @@ const storage = multer.memoryStorage();
 export const upload = multer({ storage });
 
 export class PlantImgController {
-    private uploadPlantImageUseCase: UploadPlantImage;
+    private uploadPlantImagesUseCase: UploadPlantImage;
     private getPlantImagesUseCase: GetPlantImages;
     private updatePlantImageUseCase: UpdatePlantImage;
     private toggleStatusUseCase: TogglePlantImageStatus;
@@ -22,14 +22,14 @@ export class PlantImgController {
     constructor() {
         const plantImgRepo = new PlantImgRepositoryImpl();
         const logEventRepo = new LogEventRepositoryImpl();
-        this.uploadPlantImageUseCase = new UploadPlantImage(plantImgRepo, logEventRepo);
+        this.uploadPlantImagesUseCase = new UploadPlantImage(plantImgRepo, logEventRepo);
         this.getPlantImagesUseCase = new GetPlantImages(plantImgRepo);
         this.updatePlantImageUseCase = new UpdatePlantImage(plantImgRepo, logEventRepo);
         this.toggleStatusUseCase = new TogglePlantImageStatus(plantImgRepo, logEventRepo);
         this.softDeleteUseCase = new SoftDeletePlantImage(plantImgRepo, logEventRepo);
     }
 
-    async uploadImage(req: Request, res: Response): Promise<Response> {
+    async uploadImages(req: Request, res: Response): Promise<Response> {
         const response: ApiResponse = {
             statusCode: 200,
             message: '',
@@ -44,9 +44,16 @@ export class PlantImgController {
                 return res.status(response.statusCode).json(response);
             }
 
-            if (!req.file) {
+            const files = req.files as Express.Multer.File[];
+            if (!files || files.length === 0) {
                 response.statusCode = 400;
-                response.message = 'No se proporcionó ninguna imagen';
+                response.message = 'No se proporcionaron imágenes';
+                return res.status(response.statusCode).json(response);
+            }
+
+            if (files.length > 3) {
+                response.statusCode = 400;
+                response.message = 'Máximo 3 imágenes permitidas';
                 return res.status(response.statusCode).json(response);
             }
 
@@ -57,24 +64,35 @@ export class PlantImgController {
                 return res.status(response.statusCode).json(response);
             }
 
-            const plantImg = await this.uploadPlantImageUseCase.execute(
+            // Get descriptions array from body
+            const descriptions = Array.isArray(req.body.descriptions) 
+                ? req.body.descriptions 
+                : [req.body.descriptions];
+
+            const plantImgs = await this.uploadPlantImagesUseCase.execute(
                 plantId,
-                req.file,
-                req.body.description || null,
+                files,
+                descriptions,
                 req.user.userId
             );
 
-            response.message = 'Imagen subida exitosamente';
-            response.data = plantImg;
+            response.message = 'Imágenes subidas exitosamente';
+            response.data = plantImgs;
             return res.status(response.statusCode).json(response);
 
         } catch (error) {
             console.error(error);
+            if (error instanceof Error && error.message.includes('Maximum 3 images')) {
+                response.statusCode = 400;
+                response.message = error.message;
+                return res.status(response.statusCode).json(response);
+            }
             response.statusCode = 500;
             response.message = 'Error interno del servidor';
             return res.status(response.statusCode).json(response);
         }
     }
+    
     async getImagesByPlantId(req: Request, res: Response): Promise<Response> {
         const response: ApiResponse = {
             statusCode: 200,

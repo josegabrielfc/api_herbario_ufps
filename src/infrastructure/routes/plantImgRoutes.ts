@@ -7,10 +7,10 @@ const router = express.Router();
 router.post(
     '/plants/:plantId',
     authMiddleware,
-    upload.single('image'),
+    upload.array('images', 3),
     async (req, res) => {
         try {
-            await plantImgController.uploadImage(req, res);
+            await plantImgController.uploadImages(req, res);
         } catch (error) {
             res.status(500).send({ error: 'Internal Server Error' });
         }

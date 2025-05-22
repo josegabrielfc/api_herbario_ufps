@@ -12,37 +12,44 @@ export class UploadPlantImage {
 
     async execute(
         plantId: number,
-        file: Express.Multer.File,
-        description: string | null,
+        files: Express.Multer.File[],
+        descriptions: string[],
         userId: number
-    ): Promise<PlantImg> {
-        // Crear directorio si no existe
+    ): Promise<PlantImg[]> {
+        if (files.length === 0) {
+            throw new Error('Se requiere al menos 1 imagen');
+        }
+        if (files.length > 3) {
+            throw new Error('Se permite un máximo de 3 imágenes por carga');
+        }
+
         const uploadDir = path.join(process.cwd(), 'uploads', 'plants');
         await fs.mkdir(uploadDir, { recursive: true });
 
-        // Generar nombre único para el archivo
-        const uniqueFileName = `${Date.now()}-${file.originalname}`;
-        const filePath = path.join(uploadDir, uniqueFileName);
+        const plantImgs = await Promise.all(files.map(async (file, index) => {
+            const uniqueFileName = `${Date.now()}-${file.originalname}`;
+            const filePath = path.join(uploadDir, uniqueFileName);
+            
+            await fs.writeFile(filePath, file.buffer);
+        
+            return {
+                plant_id: plantId,
+                image_url: `/uploads/plants/${uniqueFileName}`,
+                description: descriptions[index] || undefined,
+                status: true,
+                is_deleted: false
+            };
+        }));
 
-        // Guardar archivo
-        await fs.writeFile(filePath, file.buffer);
+        const savedImages = await this.plantImgRepository.createMultiple(plantImgs);
 
-        // Crear registro en base de datos
-        const plantImg = await this.plantImgRepository.create({
-            plant_id: plantId,
-            image_url: `/uploads/plants/${uniqueFileName}`,
-            description: description || undefined,
-            is_deleted: false
-        });
-
-        // Registrar log
+        // Log the upload
         await this.logEventRepository.create({
             user_id: userId,
             plant_id: plantId,
-            plant_img_id: plantImg.id,
-            description: `Uploaded image for plant ID: ${plantId}`
+            description: `Uploaded ${files.length} images for plant ID: ${plantId}`
         });
 
-        return plantImg;
+        return savedImages;
     }
 }

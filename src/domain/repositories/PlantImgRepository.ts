@@ -8,4 +8,6 @@ export interface PlantImgRepository {
     update(id: number, plantImg: Partial<PlantImg>): Promise<PlantImg | null>;
     toggleStatus(id: number): Promise<PlantImg | null>;
     softDelete(id: number): Promise<PlantImg | null>;
+    countImagesByPlantId(plantId: number): Promise<number>;
+    createMultiple(plantImgs: Array<Omit<PlantImg, 'id' | 'created_at'>>): Promise<PlantImg[]>;
 }
