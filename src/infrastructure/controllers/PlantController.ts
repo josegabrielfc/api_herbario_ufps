@@ -40,7 +40,9 @@ export class PlantController {
     };
 
     try {
-      const plants = await this.getAllPlantsUseCase.execute();
+      const plants = req.user 
+              ? await this.getAllPlantsUseCase.execute()
+              : await this.getAllPlantsUseCase.executeForUsers();
 
       if (!plants || (Array.isArray(plants) && plants.length === 0)) {
         response.statusCode = 404;
@@ -78,11 +80,10 @@ export class PlantController {
     }
 
     try {
-      //const getPlantByIdsUseCase = new GetPlantByIds(this.plantRepository);
-      const plants = await this.getPlantByIdsUseCase.execute(
-        herbariumTypeId,
-        familyId
-      );
+
+      const plants = req.user 
+              ? await this.getPlantByIdsUseCase.execute(herbariumTypeId, familyId)
+              : await this.getPlantByIdsUseCase.executeForUsers(herbariumTypeId, familyId);
 
       if (!plants || plants.length === 0) {
         response.statusCode = 404;

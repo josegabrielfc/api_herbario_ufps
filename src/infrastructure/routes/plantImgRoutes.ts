@@ -17,13 +17,27 @@ router.post(
     }
 );
 
-router.get('/getImgPlantsById/:plantId', async (req, res) => {
-    try {
-        await plantImgController.getImagesByPlantId(req, res);
-    } catch (error) {
-        res.status(500).send({ error: 'Internal Server Error' });
+router.get('/getImgPlantsById/:plantId',
+    async (req, res, next) => {
+        try {
+            // Si hay token, pasa por el middleware
+            if (req.headers.authorization) {
+                return authMiddleware(req, res, next);
+            }
+            // Si no hay token, continúa como usuario normal
+            return next();
+        } catch (error) {
+            res.status(500).json({ message: 'Error interno del servidor' });
+        }
+    },
+    async (req, res) => {
+        try {
+            await plantImgController.getImagesByPlantId(req, res);
+        } catch (error) {
+            res.status(500).json({ message: 'Error interno del servidor' });
+        }
     }
-});
+);
 
 router.put('/updateImage/:id',
     authMiddleware,

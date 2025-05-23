@@ -48,9 +48,9 @@ export class FamilyController {
     }
 
     try {
-      const families = await this.getFamiliesByHerbariumTypeIdUseCase.execute(
-        herbariumTypeId
-      );
+      const families = req.user 
+                ? await this.getFamiliesByHerbariumTypeIdUseCase.execute(herbariumTypeId)
+                : await this.getFamiliesByHerbariumTypeIdUseCase.executeForUsers(herbariumTypeId);
 
       if (!families || (Array.isArray(families) && families.length === 0)) {
         response.statusCode = 404;

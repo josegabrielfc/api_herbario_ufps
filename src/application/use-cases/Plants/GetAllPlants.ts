@@ -7,4 +7,8 @@ export class GetAllPlants {
   async execute(): Promise<Plant[]> {
     return this.plantRepository.getAll();
   }
+
+  async executeForUsers(): Promise<Plant[]> {
+    return this.plantRepository.getAllForUsers();
+  }
 }

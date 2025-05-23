@@ -4,14 +4,27 @@ import { authMiddleware } from '../middlewares/authMiddleware';
 
 const router = Router();
 
-router.get('/getFamiliesById/:id', async (req, res) => {
-    try {
-        await familyController.getFamiliesByHerbariumTypeId(req, res);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Error interno del servidor' });
+router.get('/getFamiliesById/:id', 
+    async (req, res, next) => {
+        try {
+            // Si hay token, pasa por el middleware
+            if (req.headers.authorization) {
+                return authMiddleware(req, res, next);
+            }
+            // Si no hay token, continúa como usuario normal
+            return next();
+        } catch (error) {
+            res.status(500).json({ message: 'Error interno del servidor' });
+        }
+    },
+    async (req, res) => {
+        try {
+            await familyController.getFamiliesByHerbariumTypeId(req, res);
+        } catch (error) {
+            res.status(500).json({ message: 'Error interno del servidor' });
+        }
     }
-});
+);
 
 router.post('/createFamily', 
     authMiddleware, 

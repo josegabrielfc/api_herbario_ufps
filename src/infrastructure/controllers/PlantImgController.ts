@@ -109,7 +109,9 @@ export class PlantImgController {
                 return res.status(response.statusCode).json(response);
             }
 
-            const images = await this.getPlantImagesUseCase.execute(plantId);
+            const images = req.user 
+                ? await this.getPlantImagesUseCase.execute(plantId)
+                : await this.getPlantImagesUseCase.executeForUsers(plantId);
 
             if (!images || images.length === 0) {
                 response.statusCode = 404;

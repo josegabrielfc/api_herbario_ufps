@@ -4,13 +4,27 @@ import { authMiddleware } from '../middlewares/authMiddleware';
 
 const router = express.Router();
 
-router.get('/home/getHerbariums', async (req, res) => {
-    try {
-        await herbariumTypeController.getAllHerbariumTypes(req, res);
-    } catch (error) {
-        res.status(500).send({ error: 'Internal Server Error' });
+router.get('/home/getHerbariums',
+    async (req, res, next) => {
+        try {
+            // Si hay token, pasa por el middleware
+            if (req.headers.authorization) {
+                return authMiddleware(req, res, next);
+            }
+            // Si no hay token, continúa como usuario normal
+            return next();
+        } catch (error) {
+            res.status(500).send({ error: 'Internal Server Error' });
+        }
+    },
+    async (req, res) => {
+        try {
+            await herbariumTypeController.getAllHerbariumTypes(req, res);
+        } catch (error) {
+            res.status(500).send({ error: 'Internal Server Error' });
+        }
     }
-});
+);
 
 router.post('/home/createHerbarium', 
     authMiddleware, 

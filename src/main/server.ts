@@ -15,7 +15,7 @@ app.use('/uploads', express.static(path.join(__dirname, '../../uploads')));
 // Configurar CORS
 app.use(cors({
   origin: process.env.CORS_ORIGIN || '*', // Configurar los dominios permitidos
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 

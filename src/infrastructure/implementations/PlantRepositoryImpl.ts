@@ -3,6 +3,18 @@ import { PlantRepository } from "../../domain/repositories/PlantRepository";
 import { pool } from "../database/postgresClient";
 
 export class PlantRepositoryImpl implements PlantRepository {
+
+  async getAllForUsers(): Promise<Plant[]> {
+    const result = await pool.query(`
+      SELECT plant.*, family.name as family_name, herbarium_type.name as herbarium_name 
+      FROM plant inner join family on family.id = plant.family_id
+      INNER JOIN herbarium_type ON herbarium_type.id = family.herbarium_type_id
+      WHERE plant.is_deleted = FALSE and plant.status = TRUE
+      order by plant.common_name
+    `);
+    return result.rows;
+  }
+
   async getAll(): Promise<Plant[]> {
     const result = await pool.query(`
       SELECT plant.*, family.name as family_name, herbarium_type.name as herbarium_name 
@@ -11,6 +23,21 @@ export class PlantRepositoryImpl implements PlantRepository {
       WHERE plant.is_deleted = FALSE 
       order by plant.common_name
     `);
+    return result.rows;
+  }
+
+  async getByIdsForUsers(herbariumTypeId: number, familyId: number): Promise<Plant[]> {
+    const result = await pool.query(
+      `
+      SELECT plant.*, family.name as family_name, herbarium_type.name as herbarium_name FROM plant 
+      INNER JOIN family ON family.id = plant.family_id
+      INNER JOIN herbarium_type ON herbarium_type.id = family.herbarium_type_id
+      WHERE family.herbarium_type_id = $1 
+      AND family.id = $2 
+      AND plant.is_deleted = FALSE and plant.status = TRUE order by plant.common_name
+    `,
+      [herbariumTypeId, familyId]
+    );
     return result.rows;
   }
 

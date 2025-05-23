@@ -7,4 +7,8 @@ export class GetFamiliesByHerbariumType {
   async execute(herbariumTypeId: number): Promise<Family[]> {
     return this.familyRepo.findByHerbariumTypeId(herbariumTypeId);
   }
+
+  async executeForUsers(herbariumTypeId: number): Promise<Family[]> {
+    return this.familyRepo.findByHerbariumTypeIdForUsers(herbariumTypeId);
+  }
 }

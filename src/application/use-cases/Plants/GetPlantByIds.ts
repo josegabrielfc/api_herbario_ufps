@@ -7,4 +7,8 @@ export class GetPlantByIds {
   async execute(herbariumTypeId: number, familyId: number): Promise<Plant[]> {
     return this.plantRepository.getByIds(herbariumTypeId, familyId);
   }
+  
+  async executeForUsers(herbariumTypeId: number, familyId: number): Promise<Plant[]> {
+    return this.plantRepository.getByIdsForUsers(herbariumTypeId, familyId);
+  }
 }

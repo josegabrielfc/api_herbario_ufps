@@ -7,4 +7,8 @@ export class GetPlantImages {
     async execute(plantId: number): Promise<PlantImg[]> {
         return this.plantImgRepository.getByPlantId(plantId);
     }
+
+    async executeForUsers(plantId: number): Promise<PlantImg[]> {
+        return this.plantImgRepository.getByPlantIdForUsers(plantId);
+    }
 }

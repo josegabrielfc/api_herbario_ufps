@@ -35,8 +35,11 @@ export class HerbariumTypeController {
         };
 
         try {
-            const herbariums = await this.getAllHerbariumTypesUseCase.execute();
-
+            // Si existe req.user, significa que pasó el authMiddleware exitosamente
+            const herbariums = req.user 
+                ? await this.getAllHerbariumTypesUseCase.execute()
+                : await this.getAllHerbariumTypesUseCase.executeForUsers();
+    
             if (!herbariums || (Array.isArray(herbariums) && herbariums.length === 0)) {
                 response.statusCode = 404;
                 response.message = 'No se encontraron tipos de herbario';

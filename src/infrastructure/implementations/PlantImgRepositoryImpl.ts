@@ -3,6 +3,18 @@ import { PlantImgRepository } from '../../domain/repositories/PlantImgRepository
 import { pool } from '../database/postgresClient';
 
 export class PlantImgRepositoryImpl implements PlantImgRepository {
+    
+    async getByPlantIdForUsers(plantId: number): Promise<PlantImg[]> {
+        const query = `
+            SELECT id, plant_id, image_url, description, created_at
+            FROM plant_img
+            WHERE plant_id = $1 AND is_deleted = false and status = TRUE
+            ORDER BY created_at DESC
+        `;
+        
+        const result = await pool.query(query, [plantId]);
+        return result.rows;
+    }
 
     async getImgsByPlantId(plantId: number): Promise<PlantImg[]> {
         const query = `
@@ -125,7 +137,7 @@ export class PlantImgRepositoryImpl implements PlantImgRepository {
         const totalAfterInsert = currentCount + plantImgs.length;
         
         if (totalAfterInsert > 3) {
-            throw new Error(`Maximum 3 images allowed per plant. Current: ${currentCount}`);
+            throw new Error(`Maximo 3 imagenes permitidas por planta. Actual: ${currentCount}`);
         }
 
         const values = plantImgs.map(img => 

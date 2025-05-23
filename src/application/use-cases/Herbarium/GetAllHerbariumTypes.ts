@@ -7,4 +7,8 @@ export class GetAllHerbariumTypes {
   async execute(): Promise<HerbariumType[]> {
     return this.herbariumTypeRepository.getAll();
   }
+
+  async executeForUsers(): Promise<HerbariumType[]> {
+    return this.herbariumTypeRepository.getAllForUsers();
+  }
 }
