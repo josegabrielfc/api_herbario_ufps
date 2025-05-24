@@ -1,12 +1,53 @@
 import { PlantImg } from '../../domain/entities/PlantImg';
+import { PlantPlantImg } from '../../domain/entities/PlantPlantImg';
 import { PlantImgRepository } from '../../domain/repositories/PlantImgRepository';
 import { pool } from '../database/postgresClient';
 
 export class PlantImgRepositoryImpl implements PlantImgRepository {
     
+    async getAllPlantImages(): Promise<PlantPlantImg[]> {
+        const result = await pool.query(`
+            SELECT p.*,
+                   family.name as family_name, 
+                   herbarium_type.name as herbarium_name,
+                   p_img.id AS image_id, p_img.image_url
+                FROM plant p
+                    INNER JOIN family on family.id = p.family_id
+                    INNER JOIN herbarium_type ON herbarium_type.id = family.herbarium_type_id    
+                    LEFT JOIN (
+                        SELECT DISTINCT ON (plant_id) *
+                        FROM plant_img
+                        WHERE is_deleted = false
+                        ORDER BY plant_id, id ASC
+                    ) p_img ON p.id = p_img.plant_id
+                order by p.common_name`);
+
+        return result.rows;
+    }
+
+    async getAllPlantImagesForUsers(): Promise<PlantPlantImg[]> {
+        const result = await pool.query(`
+            SELECT p.*,
+                   family.name as family_name, 
+                   herbarium_type.name as herbarium_name,
+                   p_img.id AS image_id, p_img.image_url
+                FROM plant p
+                    INNER JOIN family on family.id = p.family_id
+                    INNER JOIN herbarium_type ON herbarium_type.id = family.herbarium_type_id    
+                    LEFT JOIN (
+                        SELECT DISTINCT ON (plant_id) *
+                        FROM plant_img
+                        WHERE is_deleted = false and status = true
+                        ORDER BY plant_id, id ASC
+                    ) p_img ON p.id = p_img.plant_id
+                order by p.common_name`);
+
+        return result.rows;
+    }
+    
     async getByPlantIdForUsers(plantId: number): Promise<PlantImg[]> {
         const query = `
-            SELECT id, plant_id, image_url, description, created_at
+            SELECT *
             FROM plant_img
             WHERE plant_id = $1 AND is_deleted = false and status = TRUE
             ORDER BY created_at DESC

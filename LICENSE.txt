@@ -1,0 +1,5 @@
+Este software fue desarrollado por Jose Gabriel Fuentes Chona como proyecto de grado para la Universidad Francisco de Paula Santander.
+
+Su uso está restringido exclusivamente a la Universidad y no puede ser copiado, modificado ni distribuido sin autorización expresa del autor y de la Universidad.
+
+Cualquier uso externo debe contar con aprobación por escrito.

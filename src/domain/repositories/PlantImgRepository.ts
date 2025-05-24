@@ -1,4 +1,5 @@
 import { PlantImg } from '../entities/PlantImg';
+import { PlantPlantImg } from '../entities/PlantPlantImg';
 
 export interface PlantImgRepository {
     create(plantImg: Omit<PlantImg, 'id' | 'created_at'>): Promise<PlantImg>;
@@ -11,4 +12,6 @@ export interface PlantImgRepository {
     softDelete(id: number): Promise<PlantImg | null>;
     countImagesByPlantId(plantId: number): Promise<number>;
     createMultiple(plantImgs: Array<Omit<PlantImg, 'id' | 'created_at'>>): Promise<PlantImg[]>;
+    getAllPlantImages(): Promise<PlantPlantImg[]>;
+    getAllPlantImagesForUsers(): Promise<PlantPlantImg[]>;
 }

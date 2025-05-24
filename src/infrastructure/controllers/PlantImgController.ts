@@ -8,6 +8,7 @@ import { SoftDeletePlantImage } from '../../application/use-cases/PlantImg/SoftD
 import { LogEventRepositoryImpl } from '../implementations/LogEventRepositoryImpl';
 import { ApiResponse } from '../helpers/ApiResponse';
 import multer from 'multer';
+import { GetAllPlantImages } from '../../application/use-cases/PlantImg/GetAllPlantImages';
 
 const storage = multer.memoryStorage();
 export const upload = multer({ storage });
@@ -18,6 +19,7 @@ export class PlantImgController {
     private updatePlantImageUseCase: UpdatePlantImage;
     private toggleStatusUseCase: TogglePlantImageStatus;
     private softDeleteUseCase: SoftDeletePlantImage;
+    private getAllPlantImagesUseCase: GetAllPlantImages;
 
     constructor() {
         const plantImgRepo = new PlantImgRepositoryImpl();
@@ -27,6 +29,38 @@ export class PlantImgController {
         this.updatePlantImageUseCase = new UpdatePlantImage(plantImgRepo, logEventRepo);
         this.toggleStatusUseCase = new TogglePlantImageStatus(plantImgRepo, logEventRepo);
         this.softDeleteUseCase = new SoftDeletePlantImage(plantImgRepo, logEventRepo);
+        this.getAllPlantImagesUseCase = new GetAllPlantImages(plantImgRepo);
+    }
+
+    async getAllPlantImages(req: Request, res: Response): Promise<Response> {
+        const response: ApiResponse = {
+            statusCode: 200,
+            message: '',
+            timestamp: new Date().toISOString(),
+            data: null
+        };
+
+        try {
+            const images = req.user 
+                ? await this.getAllPlantImagesUseCase.execute()
+                : await this.getAllPlantImagesUseCase.executeForUsers();
+
+            if (!images || images.length === 0) {
+                response.statusCode = 404;
+                response.message = 'No se encontraron plantas con imágenes';
+                return res.status(response.statusCode).json(response);
+            }
+
+            response.message = 'Plantas con imágenes obtenidas exitosamente';
+            response.data = images;
+            return res.status(response.statusCode).json(response);
+
+        } catch (error) {
+            console.error(error);
+            response.statusCode = 500;
+            response.message = 'Error interno del servidor';
+            return res.status(response.statusCode).json(response);
+        }
     }
 
     async uploadImages(req: Request, res: Response): Promise<Response> {
