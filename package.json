@@ -1,12 +1,12 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "dist/main/server.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/main/server.ts",
-    "build": "tsc",
     "start": "node dist/main/server.js",
-    "vercel-build": "npm run build"
+    "build": "tsc",
+    "dev": "ts-node-dev --respawn --transpile-only src/main/server.ts",
+    "postinstall": "npm run build"
   },
   "keywords": [],
   "author": "",

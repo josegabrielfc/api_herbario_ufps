@@ -37,11 +37,9 @@ app.use('/img', plantImgRoutes);
 // Test DB
 testDbConnection();
 
-export default app;
+// Listen for all environments
+app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+});
 
-// Only listen if we're not in Vercel
-if (process.env.NODE_ENV !== 'production') {
-    app.listen(port, () => {
-        console.log(`Server running on port ${port}`);
-    });
-}
+export default app;
