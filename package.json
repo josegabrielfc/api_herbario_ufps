@@ -4,7 +4,9 @@
   "main": "index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/main/server.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "start": "node dist/main/server.js",
+    "vercel-build": "npm run build"
   },
   "keywords": [],
   "author": "",
