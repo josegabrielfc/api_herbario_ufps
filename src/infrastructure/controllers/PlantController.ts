@@ -40,6 +40,7 @@ export class PlantController {
     };
 
     try {
+      console.error("Obteniendo todas las plantas: ", req.user ? "Usuario autenticado" : "Usuario no autenticado");
       const plants = req.user 
               ? await this.getAllPlantsUseCase.execute()
               : await this.getAllPlantsUseCase.executeForUsers();

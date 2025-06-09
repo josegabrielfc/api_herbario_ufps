@@ -139,7 +139,7 @@ export class AuthController {
         };
 
         try {
-            const { currentPassword, newPassword } = req.body;
+            const { newPassword } = req.body;
             const userId = req.user?.userId;
 
             if (!userId) {
@@ -150,7 +150,6 @@ export class AuthController {
 
             const success = await this.updatePasswordUseCase.execute(
                 userId,
-                currentPassword,
                 newPassword
             );
 
@@ -233,6 +232,10 @@ export class AuthController {
             }
 
             response.message = 'Código validado exitosamente';
+            response.data = {
+                token: isValid.data?.token,
+                user: isValid.data?.user
+            };
             return res.status(response.statusCode).json(response);
 
         } catch (error) {

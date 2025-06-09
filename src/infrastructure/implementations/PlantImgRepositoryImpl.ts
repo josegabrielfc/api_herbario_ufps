@@ -20,6 +20,7 @@ export class PlantImgRepositoryImpl implements PlantImgRepository {
                         WHERE is_deleted = false
                         ORDER BY plant_id, id ASC
                     ) p_img ON p.id = p_img.plant_id
+                    WHERE p.is_deleted = false
                 order by p.common_name`);
 
         return result.rows;
@@ -40,6 +41,7 @@ export class PlantImgRepositoryImpl implements PlantImgRepository {
                         WHERE is_deleted = false and status = true
                         ORDER BY plant_id, id ASC
                     ) p_img ON p.id = p_img.plant_id
+                    WHERE p.is_deleted = false and p.status = true
                 order by p.common_name`);
 
         return result.rows;

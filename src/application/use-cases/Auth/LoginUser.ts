@@ -20,7 +20,7 @@ export class LoginUser {
         // Generar token JWT
         const token = jwt.sign(
             { userId: user.id, roleId: user.role_id },
-            process.env.JWT_SECRET || 'tu-secreto-seguro',
+            process.env.JWT_SECRET || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjQsInJvbGVJZCI6MSwiaWF0IjoxNzQ4NTQ5MjIyLCJleHAiOjE3NDg2MzU2MjJ9.jBv5gl2IyxuV7nhqP9ctLFj_vCD1yJbDBuZDxPO4RPI',
             { expiresIn: '24h' } // Token válido por 24 horas
         );
 

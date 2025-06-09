@@ -22,7 +22,7 @@ router.post("/register", authMiddleware, async (req, res) => {
     }
 });
 
-router.put("/update-password", async (req, res) => {
+router.put("/update-password", authMiddleware, async (req, res) => {
     try {
         await authController.updatePassword(req, res);
     } catch (error) {
