@@ -41,7 +41,6 @@ export class PlantImgController {
         };
 
         try {
-            console.error("Obteniendo todas las plantas: ", req.user ? "Usuario autenticado" : "Usuario no autenticado");
             const images = req.user 
                 ? await this.getAllPlantImagesUseCase.execute()
                 : await this.getAllPlantImagesUseCase.executeForUsers();
