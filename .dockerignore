@@ -1,0 +1,10 @@
+dist
+node_modules
+uploads/plants
+.env
+.gitignore
+.git
+LICENSE.txt
+combined.log
+README.md
+render.yaml

@@ -25,7 +25,11 @@ PORT=3000
 NODE_ENV=development
 
 # Database
-DATABASE_URL="postgresql://user:password@localhost:5432/mydatabase"
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=your_database_name
+DB_USER=your_user
+DB_PASSWORD=your_password
 
 # JWT
 JWT_SECRET=your_jwt_secret_key

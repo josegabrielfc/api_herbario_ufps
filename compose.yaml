@@ -1,0 +1,14 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "${PORT_0}:3000"
+    env_file: .env
+    volumes:
+      - uploads:/app/uploads/plants
+    restart: always
+
+volumes:
+  uploads:
